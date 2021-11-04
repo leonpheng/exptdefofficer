@@ -1,0 +1,11 @@
+Package: xptdefofficer
+Title: Create XPT and Define document 
+Version: 3.0
+Authors@R: 
+    person(given = "Leon",
+           family = "Pheng",
+           role = c("aut", "cre"),
+           email = "lhpheng@gmail.com",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: This package will convert csv dataset to xpt, create output folders and define document in word using officer package.
+RoxygenNote: 7.1.1
