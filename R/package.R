@@ -130,7 +130,7 @@ autoclass<-function(dat){
   for(i in var){
     # i="othername"
     numt<-as.numeric(dat[,i])
-    if(all.is.numeric(dat[,i],what = c("test","vector"),extras=c('.','NA',"NaN"," ","  ",NA)))
+    if(all.is.numeric(dat[,i]))#,what = c("test","vector"),extras=c('.','NA',"NaN"," ","  ",NA)))
       #nrow(dat[!is.na(as.numeric(as.character(dat[,i]))),])==0)
     {dat[,i]<-unlist(as.numeric(as.character(dat[,i])))
     }else{
@@ -537,7 +537,7 @@ generateDEF1<-function (title = "Add title here", xpt.location = "./datasets/",
     # flextable structure !
     Reduce(append, out)
   }
-  ###############
+###############
   setwd(working.folder)
   pathwork <- getwd()
   pathdir <- pathwork
@@ -615,8 +615,8 @@ generateDEF1<-function (title = "Add title here", xpt.location = "./datasets/",
   ft<-font(ft, fontname = "Times New Roman", part = "all")
   ft<-set_table_properties(ft, width = .7, layout = "autofit")
 
-  tab<-NULL
-  tab[[1]]<-ft
+  tabxx<-NULL
+  tabxx[[1]]<-ft
   ft<-NULL
 
   #doc<-read_docx()
@@ -625,10 +625,10 @@ generateDEF1<-function (title = "Add title here", xpt.location = "./datasets/",
   #START LOOP FOR VARIABLE DEFINE LIST
 
   tab1data <- inp
-
+  tabx<-NULL
   for (j in 1:nrow(inp)) {
     t1<-as.character(tab1data$outp[j])
-    doc <- body_add_par(doc,t1,style = c("heading 2"))
+    #doc <- body_add_par(doc,t1,style = c("heading 2"))
     #ADD DEFINE LIST
     data <- read.csv(file.path(outputdir, paste(inp$outp[j],
                                                 "define.csv", sep = "")))
@@ -647,8 +647,8 @@ generateDEF1<-function (title = "Add title here", xpt.location = "./datasets/",
                                  nrow = 1, data = tw1bn))
     names(tw1b) <- names(data)
     tw2 <- rbind(tw1a, tw1b, data)
-    head(tw2)
-
+    head(tw2,10)
+names(tw2)
     #------->header
     dts1 <- gsub(".xpt","",as.character(inp1$Dataset[j]))
     orin= as.character(inp1$"Original Name"[j])
@@ -667,8 +667,9 @@ generateDEF1<-function (title = "Add title here", xpt.location = "./datasets/",
 
     names(tw2)
     #------->header
-    tw2$B<-""
-    tw2$C<-""
+    tw2$B<-"."
+    tw2$C<-"."
+    head(tw2)
     tw2$B[4:5]<-c(dts2,"")
     tw2$C[4:5]<-c(link1,"")
     tw2$SAS.Label[c(1:3)]<-c("",orin,struc)
@@ -682,8 +683,16 @@ generateDEF1<-function (title = "Add title here", xpt.location = "./datasets/",
 
     tw2$B<-as.character(tw2$B)
     tw2$C<-as.character(tw2$C)
+head(data.frame(tw2))
+length(tw2$SAS.Variable)
+length(tw2$Detailed.description)
+names(tw2)
+tw2$B<-NULL
+tw2$C<-NULL
 
-    ft1 <- flextable(data = tw2)
+
+ft1<- flextable(data =tw2)
+
 
     if(no_prog){
       ft1 <- compose(x = ft1, j=2,i=4, value = multi_hyperlink_text(B,C))
@@ -725,11 +734,12 @@ generateDEF1<-function (title = "Add title here", xpt.location = "./datasets/",
     ft1<-hline(ft1, i=6:lr,border=bord)
 
     ft1<-font(ft1, fontname = "Times New Roman", part = "all")
-    ft1<-set_table_properties(ft1, width = .7, layout = "autofit")
-    tab[[j+1]]<-ft1
+    #ft1<-set_table_properties(ft1, width = .7, layout = "autofit")
+    tab[[j]]<-ft1
     ft1<-NULL
   }
-
+  
+  head(tab)
 
   ###ADD PROGRAMS LIST
   prog <- unlist(paste0(lst$renam[lst$type == "program"],
@@ -747,11 +757,12 @@ generateDEF1<-function (title = "Add title here", xpt.location = "./datasets/",
 
   ind <- lst[rownames(lst) %in% rownames(IOD), ]
   prono <- lst[rownames(lst) %in% rownames(IOD), "progNo"]
-
   ind=nrow(inp)
-  #FOR FDA
+
+    #FOR FDA
   if (nrow(IOD) == 0) {
     ind=ind+2
+    if(length(origprog)!=0){
     tab3data <- data.frame(Original = origprog, Program = prog,
                            Description = progdes, Location = location)
     orig <- origprog
@@ -763,12 +774,10 @@ generateDEF1<-function (title = "Add title here", xpt.location = "./datasets/",
     tab3data$Location<-seq(nrow(tab3data))+nrow(inp)
     tab3data$D<-hyp0
     tab3data$E<-hyp11
-
     ft2 <- flextable(data = tab3data)
     ft2 <- compose(x = ft2, j=4,value = multi_hyperlink_text(D,E))
     ft2 <- color(x = ft2,j =4,color = "#0000EE")
     ft2 <- void(x = ft2,~D+E, part = "all")
-
     for(i in 1:nrow(tab3data)){
       ft2<-merge_at(ft2,j=4:6,i=i)
     }
@@ -781,9 +790,13 @@ generateDEF1<-function (title = "Add title here", xpt.location = "./datasets/",
     bord<-fp_border(color="black")
     ft2<-vline(ft2,j=4,border=bord)
     ft2<-font(ft2, fontname = "Times New Roman", part = "all")
-    ft2<-set_table_properties(ft2, width = .7, layout = "autofit")
-  }
-
+    ft2<-set_table_properties(ft2, width = .7, layout = "autofit")  
+    }else{tab3data <- data.frame(Original = "origprog", Program = "prog",
+                                 Description = "progdes", Location = "location")
+    ft2 <- flextable(data = tab3data)}
+    ft2<-set_table_properties(ft2, width = .7, layout = "autofit") 
+    }
+  
   #FOR PMDA
   if (nrow(IOD) > 0) {
     prog <- unlist(paste0(ind$renam[ind$type != "dataset"],
@@ -874,17 +887,15 @@ generateDEF1<-function (title = "Add title here", xpt.location = "./datasets/",
     length(tab)
   }
 
-
-
   img_in_par <- fpar(
-    external_img(src ="c:/lhtemplate/logo.png",width=3.5,height=1.44),
+    #external_img(src ="c:/lhtemplate/logo.png",width=3.5,height=1.44),
     fp_p = fp_par(text.align = "center") )
   text_style <- fp_text(font.size =15,bold=T)
   par_style <- fp_par(text.align = "center")
 
-
-  doc<-read_docx("c:/lhtemplate/style.docx")
-  doc <- body_add_fpar(doc,img_in_par)
+##Create WORD DOC
+  doc<-read_docx()
+  #doc <- body_add_fpar(doc,img_in_par)
   #doc <- body_add_break(doc)
   an_fpar <- fpar("", run_linebreak())
   doc <- body_add(doc, an_fpar)
@@ -893,36 +904,45 @@ generateDEF1<-function (title = "Add title here", xpt.location = "./datasets/",
   doc <- body_add_toc(doc,level=2)
   doc <-body_add_break(doc)
   doc <- body_add_par(doc,"DATASETS TABLE OF CONTENTS",style = c("heading 1"))
-  doc <- body_add_flextable(doc,tab[[1]])
+  tabx1<-tab[[1]]%>% autofit() %>%set_table_properties(layout = "autofit")
+  doc <- body_add_flextable(doc,tabx1)
   doc <-body_add_break(doc)
 
   fname<-paste0(define.location,"1_DATASETS TABLE OF CONTENTS.docx")
-  print(doc,fname)
-
-  doc<-read_docx("c:/lhtemplate/style.docx")
+ # print(doc,fname)
+  #doc<-read_docx("c:/lhtemplate/style.docx")
+  
   doc <- body_add_par(doc,"VARIABLE DEFINITION TABLES",style = c("heading 1"))
   for(i in 1:nrow(inp)){
-    t1<-as.character(tab1data$outp[j])
+    t1<-as.character(tab1data$outp[i])
     doc <- body_add_par(doc,t1,style = c("heading 2"))
-    doc <- body_add_flextable(doc,tab[[i+1]])
+    doc <- body_add(doc, an_fpar)
+    tabx<-tab[[i+1]] %>% autofit() %>%set_table_properties(layout = "autofit")
+    doc <- body_add_flextable(doc,tabx)
     doc <-body_add_break(doc)
   }
   fname<-paste0(define.location,"2_VARIABLE DEFINITION TABLES.docx")
-  print(doc,fname)
+  #print(doc,fname)
 
   if(nrow(IOD)==0){
-    doc<-read_docx("c:/lhtemplate/style.docx")
+   # doc<-read_docx()
     doc <- body_add_par(doc,"PROGRAMS TABLE OF CONTENTS",style = c("heading 1"))
-    doc <- body_add_flextable(docft2)
+    doc <- body_add(doc, an_fpar)
+    ft2<-ft2%>% autofit() %>%set_table_properties(layout = "autofit")
+    doc <- body_add_flextable(doc,ft2)
     fname<-paste0(define.location,"3_PROGRAMS TABLE OF CONTENTS_FDA.docx")
     print(doc,fname)}
 
   if(nrow(IOD)>0){
     doc<-read_docx("c:/lhtemplate/style.docx")
     doc <- body_add_par(doc,"PROGRAMS TABLE OF CONTENTS",style = c("heading 1"))
+    doc <- body_add(doc, an_fpar)
+    pm<-pm%>% autofit() %>%set_table_properties(layout = "autofit")
     doc <- body_add_flextable(doc,pm)
-    fname<-paste0(define.location,"4_PROGRAMS TABLE OF CONTENTS_PMDA.docx")
-    print(doc,fname)}
+  }
+
+fname<-paste0(define.location,"define.docx")  
+print(doc,fname)  
 
 }
 
